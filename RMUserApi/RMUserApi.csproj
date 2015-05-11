@@ -127,20 +127,28 @@
   <ItemGroup>
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="Attributes\DirectorySchemaExAttribute.cs" />
+    <Compile Include="Controllers\LdapOuController.cs" />
     <Compile Include="Controllers\LdapUserController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Ldap\LdapUserExceptions.cs" />
+    <Compile Include="Ldap\LdapOuStore.cs" />
+    <Compile Include="ModelMappers\LdapOuMapper.cs" />
+    <Compile Include="Models\LdapOu.cs" />
+    <Compile Include="Models\LdapUserPassword.cs" />
+    <Compile Include="ModelMappers\LdapUserPasswordMapper.cs" />
     <Compile Include="Providers\LdapAuthorizationServerProvider.cs" />
     <Compile Include="Ldap\LdapContext.cs" />
     <Compile Include="Providers\LdapRefreshTokenProvider.cs" />
-    <Compile Include="Ldap\LdapUser.cs" />
+    <Compile Include="Models\LdapUser.cs" />
     <Compile Include="Ldap\LdapUserManager.cs" />
-    <Compile Include="Ldap\LdapUserMapper.cs" />
+    <Compile Include="ModelMappers\LdapUserMapper.cs" />
     <Compile Include="Ldap\LdapUserStore.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Startup.cs" />
     <Compile Include="Utilities\LdapConfig.cs" />
+    <Compile Include="Utilities\SSHASaltedGenerator.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="packages.config" />
@@ -153,7 +161,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
-    <Folder Include="Models\" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

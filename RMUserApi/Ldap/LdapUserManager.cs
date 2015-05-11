@@ -4,6 +4,7 @@ using System.Linq;
 using System.Web;
 
 using Microsoft.AspNet.Identity;
+using RMUserApi.Models;
 
 namespace RMUserApi.Ldap
 {

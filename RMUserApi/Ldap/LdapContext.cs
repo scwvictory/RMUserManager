@@ -7,6 +7,7 @@ using LinqToLdap;
 using System.DirectoryServices.Protocols;
 using System.Net;
 using RMUserApi.Ldap;
+using RMUserApi.ModelMappers;
 using RMUserApi.Utilities;
 
 namespace RMUserApi.Ldap
@@ -40,6 +41,7 @@ namespace RMUserApi.Ldap
                 config
                     .MaxPageSizeIs(10000)
                     .AddMapping(new LdapUserMapper())
+                    .AddMapping(new LdapUserPasswordMapper())
                     .ConfigureFactory(LdapConfig.Server)
                     .AuthenticateBy(AuthType.Basic)
                     .AuthenticateAs(new NetworkCredential(dn, password))

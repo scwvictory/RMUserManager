@@ -4,9 +4,10 @@ using System.Linq;
 using System.Web;
 
 using LinqToLdap.Mapping;
+using RMUserApi.Models;
 using RMUserApi.Utilities;
 
-namespace RMUserApi.Ldap
+namespace RMUserApi.ModelMappers
 {
     /// <summary>
     /// LDAP の inetOrgPerson オブジェクトと、LdapUser クラスとのマッピング
@@ -26,6 +27,7 @@ namespace RMUserApi.Ldap
             Map(x => x.FirstName).Named("cn");
             Map(x => x.MailAddress).Named("mail");
             Map(x => x.OrganizationName).Named("organizationName");
+            Map(x => x.Ou).Named("ou");
 
             return this;
         }
