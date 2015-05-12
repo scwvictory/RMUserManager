@@ -40,6 +40,24 @@ namespace RMUserApi.Controllers
             }
         }
 
+        [AuthorizeEx(Roles = "Administrator")]
+        [HttpPost]
+        [ActionName("SearchUsers")]
+        public async Task<HttpResponseMessage> SearchUsers([FromBody]LdapUserStore.SearchAsyncModel model)
+        {
+            try
+            {
+                //ユーザーIDをキーにしてユーザー情報を取得
+                var results = await new LdapUserStore().SearchAsync(model);
+                //ユーザー情報を返す
+                return Request.CreateResponse(HttpStatusCode.OK, results);
+            }
+            catch (Exception e)
+            {
+                return Request.CreateResponse(HttpStatusCode.InternalServerError, e);
+            }
+        }        
+
         /// <summary>
         /// 指定されたユーザーIDに該当するユーザー情報を取得する
         /// </summary>

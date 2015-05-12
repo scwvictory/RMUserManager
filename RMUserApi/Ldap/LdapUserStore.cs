@@ -441,6 +441,43 @@ namespace RMUserApi.Ldap
         }
 
         /// <summary>
+        /// ユーザーを検索し、ユーザーリストを取得する
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
+        public Task<IEnumerable<LdapUser>> SearchAsync(SearchAsyncModel model)
+        {
+            try
+            {
+                using (LdapContext context = new LdapContext())
+                {
+                    context.Connect();
+                    var results = context.Context.Query<LdapUser>()
+                        .AsEnumerable() //IQueryable のままだと Containts(部分一致)が使えない
+                        .Where(x => model.Id == null ? true : x.Id.Contains(model.Id))
+                        .Where(x => model.FirstName == null ? true : x.FirstName.Contains(model.FirstName))
+                        .Where(x => model.LastName == null ? true : x.LastName.Contains(model.LastName))
+                        .Where(x => model.OrganizationName == null ? true : x.OrganizationName.Contains(model.OrganizationName))
+                        .Select(x => x)
+                        .ToList();
+                    return Task.FromResult<IEnumerable<LdapUser>>(results);
+                }
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
+        public class SearchAsyncModel
+        {
+            public string Id { get; set; }
+            public string FirstName { get; set; }
+            public string LastName { get; set; }
+            public string OrganizationName { get; set; }
+        }
+
+        /// <summary>
         /// アンマネージ リソースの解放およびリセットに関連付けられているアプリケーション定義のタスクを実行します。
         /// </summary>
         public void Dispose()
