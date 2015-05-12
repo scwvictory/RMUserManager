@@ -38,6 +38,12 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="EntityFramework">
+      <HintPath>..\packages\EntityFramework.6.1.3\lib\net45\EntityFramework.dll</HintPath>
+    </Reference>
+    <Reference Include="EntityFramework.SqlServer">
+      <HintPath>..\packages\EntityFramework.6.1.3\lib\net45\EntityFramework.SqlServer.dll</HintPath>
+    </Reference>
     <Reference Include="LinqToLdap">
       <HintPath>..\packages\LinqToLdap.3.3.2\lib\net45\LinqToLdap.dll</HintPath>
     </Reference>
@@ -126,18 +132,29 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="App_Start\WebApiConfig.cs" />
+    <Compile Include="Attributes\AuthorizeExAttribute.cs" />
     <Compile Include="Attributes\DirectorySchemaExAttribute.cs" />
     <Compile Include="Controllers\LdapOuController.cs" />
     <Compile Include="Controllers\LdapUserController.cs" />
+    <Compile Include="Controllers\LdapUserRoleController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Ldap\LdapUserExceptions.cs" />
     <Compile Include="Ldap\LdapOuStore.cs" />
+    <Compile Include="Migrations\201505120607320_AddRoleTable.cs" />
+    <Compile Include="Migrations\201505120607320_AddRoleTable.Designer.cs">
+      <DependentUpon>201505120607320_AddRoleTable.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="ModelMappers\LdapOuMapper.cs" />
     <Compile Include="Models\LdapOu.cs" />
     <Compile Include="Models\LdapUserPassword.cs" />
     <Compile Include="ModelMappers\LdapUserPasswordMapper.cs" />
+    <Compile Include="Models\LdapUserRole.cs" />
+    <Compile Include="Models\LdapUserRoleMember.cs" />
+    <Compile Include="Models\RMUserDbContext.cs" />
+    <Compile Include="Models\RMUserDbInitializer.cs" />
     <Compile Include="Providers\LdapAuthorizationServerProvider.cs" />
     <Compile Include="Ldap\LdapContext.cs" />
     <Compile Include="Providers\LdapRefreshTokenProvider.cs" />
@@ -161,6 +178,11 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Migrations\201505120607320_AddRoleTable.resx">
+      <DependentUpon>201505120607320_AddRoleTable.cs</DependentUpon>
+    </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

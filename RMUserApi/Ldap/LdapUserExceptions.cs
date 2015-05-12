@@ -44,4 +44,24 @@ namespace RMUserApi.Ldap
         {
         }
     }
+
+    /// <summary>
+    /// 指定されたロールが存在しない場合
+    /// </summary>
+    public class NotFoundLdapUserRoleException : ApplicationException
+    {
+        public NotFoundLdapUserRoleException()
+        {
+        }
+
+        public NotFoundLdapUserRoleException(string message)
+            : base(message)
+        {
+        }
+
+        public NotFoundLdapUserRoleException(string message, Exception inner)
+            : base(message, inner)
+        {
+        }
+    }
 }

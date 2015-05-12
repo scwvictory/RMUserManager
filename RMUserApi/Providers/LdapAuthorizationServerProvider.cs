@@ -39,8 +39,8 @@ namespace RMUserApi.Providers
 
                 //ユーザーを表す ClaimsIdentity を作成する
                 var identity = await userManager.CreateIdentityAsync(ldapUser, context.Options.AuthenticationType);
-                identity.AddClaim(new Claim("role", "SystemAdmin"));
                 identity.AddClaim(new Claim("dn", ldapUser.DistinguishedName));
+                identity.AddClaim(new Claim("uid", ldapUser.Id));
                 context.Validated(identity);
 
                 //認証登録

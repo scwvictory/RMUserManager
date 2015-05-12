@@ -6,6 +6,7 @@ using System.Net.Http;
 using System.Web.Http;
 
 using System.Threading.Tasks;
+using RMUserApi.Attributes;
 using RMUserApi.Ldap;
 using RMUserApi.Models;
 using RMUserApi.Utilities;
@@ -18,7 +19,7 @@ namespace RMUserApi.Controllers
         /// 現在ログイン中のユーザー情報を取得する
         /// </summary>
         /// <returns></returns>
-        [Authorize]
+        [AuthorizeEx]
         [HttpPost]
         [ActionName("GetCurrentUser")]
         public async Task<HttpResponseMessage> GetCurrentUser()
@@ -44,7 +45,7 @@ namespace RMUserApi.Controllers
         /// </summary>
         /// <param name="uid">ユーザーID(uid)</param>
         /// <returns></returns>
-        [Authorize]
+        [AuthorizeEx(Roles = "Administrator")]
         [HttpPost]
         [ActionName("GetUser")]
         public async Task<HttpResponseMessage> GetUser([FromBody]LdapUser ldapUser)
@@ -62,7 +63,7 @@ namespace RMUserApi.Controllers
             }
         }
 
-        [Authorize]
+        [AuthorizeEx(Roles = "Administrator")]
         [HttpPost]
         [ActionName("CreateUser")]
         public async Task<HttpResponseMessage> CreateUser([FromBody]LdapUser ldapUser)
@@ -80,7 +81,7 @@ namespace RMUserApi.Controllers
             }
         }
 
-        [Authorize]
+        [AuthorizeEx(Roles = "Administrator")]
         [HttpPost]
         [ActionName("UpdateUser")]
         public async Task<HttpResponseMessage> UpdateUser([FromBody]LdapUser ldapUser)
@@ -98,7 +99,7 @@ namespace RMUserApi.Controllers
             }
         }
 
-        [Authorize]
+        [AuthorizeEx(Roles = "Administrator")]
         [HttpPost]
         [ActionName("DeleteUser")]
         public async Task<HttpResponseMessage> DeleteUser([FromBody]LdapUser ldapUser)
@@ -116,7 +117,7 @@ namespace RMUserApi.Controllers
             }
         }
 
-        [Authorize]
+        [AuthorizeEx(Roles = "Administrator")]
         [HttpPost]
         [ActionName("SetPassword")]
         public async Task<HttpResponseMessage> SetPassword([FromBody]SetPasswordModel model)
@@ -151,6 +152,51 @@ namespace RMUserApi.Controllers
             /// パスワード(プレーンテキスト)
             /// </summary>
             public string Password { get; set; }
+        }
+
+        [AuthorizeEx]
+        [HttpPost]
+        [ActionName("ChangePassword")]
+        public async Task<HttpResponseMessage> ChangePassword([FromBody]ChangePasswordModel model)
+        {
+            try
+            {
+                //クレーム情報からユーザーID(uid)を取得
+                var uid = Request.GetOwinContext().Authentication.User.Claims
+                    .Single(x => x.Type == "uid").Value;
+
+                //ユーザーID、パスワードによる認証
+                var ldapUser = await new LdapUserStore().Authenticate(uid, model.OldPassword);
+                if (ldapUser == null)
+                {
+                    return Request.CreateResponse(HttpStatusCode.BadRequest);
+                }
+
+                //パスワードをハッシュ化
+                var passwordHash = SSHASaltedGenerator.GenerateSaltedSHA1(model.NewPassword);
+
+                //パスワードを更新
+                await new LdapUserStore().SetPasswordHashAsync(ldapUser, passwordHash);
+
+                //更新した結果を返す
+                return Request.CreateResponse(HttpStatusCode.OK);
+            }
+            catch (Exception e)
+            {
+                return Request.CreateResponse(HttpStatusCode.InternalServerError, e);
+            }
+        }
+
+        public class ChangePasswordModel
+        {
+            /// <summary>
+            /// 旧パスワード
+            /// </summary>
+            public string OldPassword { get; set; }
+            /// <summary>
+            /// 新パスワード
+            /// </summary>
+            public string NewPassword { get; set; }
         }
     }
 }

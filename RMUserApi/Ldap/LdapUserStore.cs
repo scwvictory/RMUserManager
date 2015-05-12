@@ -14,7 +14,7 @@ namespace RMUserApi.Ldap
     /// <summary>
     /// ユーザー管理 API を公開するインターフェイス
     /// </summary>
-    public class LdapUserStore : IUserStore<LdapUser>, IUserPasswordStore<LdapUser>
+    public class LdapUserStore : IUserStore<LdapUser>, IUserPasswordStore<LdapUser>//, IUserRoleStore<LdapUser>
     {
         /// <summary>
         /// 新しいユーザーを挿入する
@@ -50,7 +50,7 @@ namespace RMUserApi.Ldap
                     ldapUser.SetDisplayName();
                     //追加処理
                     ldapContext.Context.Add(ldapUser);
-                    return Task.FromResult<LdapUser>(ldapUser);
+                    return Task.Delay(0);
                 }
             }
             catch(Exception e)
@@ -90,7 +90,7 @@ namespace RMUserApi.Ldap
                     //渡された内容に更新
                     _CopyLdapUserProperties(ref ldapUser, ref result);
                     ldapContext.Context.Update(result);
-                    return Task.FromResult<LdapUser>(result);
+                    return Task.Delay(0);
                 }
             }
             catch (Exception e)
@@ -134,7 +134,7 @@ namespace RMUserApi.Ldap
 
                     //渡された内容を削除
                     ldapContext.Context.Delete(result.DistinguishedName);
-                    return Task.FromResult<LdapUser>(result);
+                    return Task.Delay(0);
                 }
             }
             catch (Exception e)
@@ -276,7 +276,162 @@ namespace RMUserApi.Ldap
                     //ハッシュ化済みパスワードを設定する
                     ldapUserPwd.Password = passwordHash;
                     ldapContext.Context.Update<LdapUserPassword>(ldapUserPwd);
-                    return Task.FromResult<LdapUserPassword>(ldapUserPwd);
+                    return Task.Delay(0);
+                }
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
+        /// <summary>
+        /// このユーザーのロールを返す
+        /// </summary>
+        /// <param name="ldapUser"></param>
+        /// <returns></returns>
+        public Task<IList<string>> GetRolesAsync(LdapUser ldapUser)
+        {
+            try
+            {
+                using (RMUserDbContext context = new RMUserDbContext())
+                {
+                    //該当するメンバーの所属するロールを取得
+                    var roles = context.LdapUserRoleMembers
+                        .Where(m => m.LdapId == ldapUser.Id)
+                        .SelectMany(m => m.LdapUserRoles.Select(r => r.Name))
+                        .ToList();
+                        
+                    //取得結果を返す
+                    return Task.FromResult<IList<string>>(roles);
+                }
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
+        /// <summary>
+        /// ユーザーがロール内に存在する場合、true を返す
+        /// </summary>
+        /// <param name="ldapUser"></param>
+        /// <param name="role"></param>
+        /// <returns></returns>
+        public Task<bool> IsInRoleAsync(LdapUser ldapUser, string role)
+        {
+            try
+            {
+                using (RMUserDbContext context = new RMUserDbContext())
+                {
+                    //ユーザーが属するロールの中に指定されたロールが存在するかどうか
+                    var roles = context.LdapUserRoleMembers
+                        .Where(m => m.LdapId == ldapUser.Id)
+                        .SelectMany(m => m.LdapUserRoles
+                            .Where(r => r.Name == role)
+                            .Select(r => r));
+                    var result = (roles.Count() >= 1);
+                        
+                    //取得結果を返す
+                    return Task.FromResult<bool>(result);
+                }
+            }
+            catch(Exception e)
+            {
+                throw e;
+            }
+        }
+
+        /// <summary>
+        /// ロールにユーザーを追加する
+        /// </summary>
+        /// <param name="ldapUser"></param>
+        /// <param name="role"></param>
+        /// <returns></returns>
+        public Task AddToRoleAsync(LdapUser ldapUser, string roleName)
+        {
+            try
+            {
+                using (RMUserDbContext context = new RMUserDbContext())
+                {
+                    //指定されたロールを取得
+                    var role = context.LdapUserRoles
+                        .Where(r => r.Name == roleName)
+                        .SingleOrDefault();
+                    if (role == null)
+                    {
+                        throw new NotFoundLdapUserRoleException(
+                            string.Format("Role: '{0}' is not found.", roleName));
+                    }
+
+                    //既にメンバーに存在する場合はそのまま抜ける
+                    LdapUserRoleMember roleMember = role.Members
+                        .Where(m => m.LdapId == ldapUser.Id)
+                        .SingleOrDefault();
+                    if (roleMember != null)
+                    {
+                        return Task.Delay(0);
+                    }
+    
+                    //該当するメンバーを取得
+                    roleMember = context.LdapUserRoleMembers
+                        .Where(m => m.LdapId == ldapUser.Id)
+                        .SingleOrDefault();
+                    if (roleMember == null)
+                    {
+                        //存在しない場合、追加
+                        roleMember = new LdapUserRoleMember { LdapId = ldapUser.Id };
+                        context.LdapUserRoleMembers.Add(roleMember);
+                        context.SaveChanges();
+                    }
+
+                    //メンバーへ追加
+                    role.Members.Add(roleMember);
+                    context.SaveChanges();
+                    return Task.Delay(0);
+                }
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
+        /// <summary>
+        /// ユーザーのロールを削除する
+        /// </summary>
+        /// <param name="ldapUser"></param>
+        /// <param name="role"></param>
+        /// <returns></returns>
+        public Task RemoveFromRoleAsync(LdapUser ldapUser, string roleName)
+        {
+            try
+            {
+                using (RMUserDbContext context = new RMUserDbContext())
+                {
+                    //指定されたロールを取得
+                    var role = context.LdapUserRoles
+                        .Where(r => r.Name == roleName)
+                        .SingleOrDefault();
+                    if (role == null)
+                    {
+                        throw new NotFoundLdapUserRoleException(
+                            string.Format("Role: '{0}' is not found.", roleName));
+                    }
+
+                    //既にメンバーに存在しない場合はそのまま抜ける
+                    LdapUserRoleMember roleMember = role.Members
+                        .Where(m => m.LdapId == ldapUser.Id)
+                        .SingleOrDefault();
+                    if (roleMember == null)
+                    {
+                        return Task.Delay(0);
+                    }
+
+                    //該当するメンバーを削除
+                    role.Members.Remove(roleMember);
+                    context.SaveChanges();
+                    return Task.Delay(0);
                 }
             }
             catch (Exception e)
