@@ -172,19 +172,14 @@ namespace RMUserApi.Controllers
             public string Password { get; set; }
         }
 
-        [AuthorizeEx]
         [HttpPost]
         [ActionName("ChangePassword")]
         public async Task<HttpResponseMessage> ChangePassword([FromBody]ChangePasswordModel model)
         {
             try
             {
-                //クレーム情報からユーザーID(uid)を取得
-                var uid = Request.GetOwinContext().Authentication.User.Claims
-                    .Single(x => x.Type == "uid").Value;
-
                 //ユーザーID、パスワードによる認証
-                var ldapUser = await new LdapUserStore().Authenticate(uid, model.OldPassword);
+                var ldapUser = await new LdapUserStore().Authenticate(model.Id, model.OldPassword);
                 if (ldapUser == null)
                 {
                     return Request.CreateResponse(HttpStatusCode.BadRequest);
@@ -207,6 +202,10 @@ namespace RMUserApi.Controllers
 
         public class ChangePasswordModel
         {
+            /// <summary>
+            /// ユーザーID(uid)
+            /// </summary>
+            public string Id { get; set; }
             /// <summary>
             /// 旧パスワード
             /// </summary>
