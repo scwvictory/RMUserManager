@@ -15,10 +15,10 @@
     <AssemblyName>RMUserApi</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <UseIISExpress>true</UseIISExpress>
-    <IISExpressSSLPort />
-    <IISExpressAnonymousAuthentication />
-    <IISExpressWindowsAuthentication />
-    <IISExpressUseClassicPipelineMode />
+    <IISExpressSSLPort>10085</IISExpressSSLPort>
+    <IISExpressAnonymousAuthentication>enabled</IISExpressAnonymousAuthentication>
+    <IISExpressWindowsAuthentication>disabled</IISExpressWindowsAuthentication>
+    <IISExpressUseClassicPipelineMode>false</IISExpressUseClassicPipelineMode>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
     <RestorePackages>true</RestorePackages>
   </PropertyGroup>
@@ -156,7 +156,6 @@
     <Compile Include="Models\LdapUserRole.cs" />
     <Compile Include="Models\LdapUserRoleMember.cs" />
     <Compile Include="Models\RMUserDbContext.cs" />
-    <Compile Include="Models\RMUserDbInitializer.cs" />
     <Compile Include="Providers\LdapAuthorizationServerProvider.cs" />
     <Compile Include="Ldap\LdapContext.cs" />
     <Compile Include="Providers\LdapRefreshTokenProvider.cs" />
@@ -171,6 +170,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="packages.config" />
+    <None Include="Properties\PublishProfiles\MC-REDMINE-DB.pubxml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

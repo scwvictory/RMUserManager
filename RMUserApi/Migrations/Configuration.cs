@@ -5,6 +5,9 @@ namespace RMUserApi.Migrations
     using System.Data.Entity.Migrations;
     using System.Linq;
 
+    using System.Collections.Generic;
+    using RMUserApi.Models;
+
     internal sealed class Configuration : DbMigrationsConfiguration<RMUserApi.Models.RMUserDbContext>
     {
         public Configuration()
@@ -14,18 +17,14 @@ namespace RMUserApi.Migrations
 
         protected override void Seed(RMUserApi.Models.RMUserDbContext context)
         {
-            //  This method will be called after migrating to the latest version.
-
-            //  You can use the DbSet<T>.AddOrUpdate() helper extension method 
-            //  to avoid creating duplicate seed data. E.g.
-            //
-            //    context.People.AddOrUpdate(
-            //      p => p.FullName,
-            //      new Person { FullName = "Andrew Peters" },
-            //      new Person { FullName = "Brice Lambson" },
-            //      new Person { FullName = "Rowan Miller" }
-            //    );
-            //
+            var roles = new List<LdapUserRole> {
+                new LdapUserRole
+                {
+                    Name = "Administrator",
+                },
+            };
+            context.LdapUserRoles.AddRange(roles);
+            context.SaveChanges();
         }
     }
 }
