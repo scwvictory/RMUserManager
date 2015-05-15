@@ -1,0 +1,61 @@
+﻿<!DOCTYPE html>
+
+<html lang="ja">
+<head>
+    <meta charset="utf-8" />
+    <title>Todo アプリ</title>
+
+    <link href="Content/bootstrap.css" rel="stylesheet" />
+    <link rel="stylesheet" href="app.css" type="text/css" />
+    <script src="Scripts/angular.js"></script>
+    <script src="app.js"></script>
+</head>
+<body ng-app="App">
+    <div ng-controller="MainController">
+        <div class="location-bar"></div>
+
+        <div class="container">
+            <div class="page-header">
+                <h1>ToDo</h1>
+            </div>
+
+            <form class="input-group input-group-lg" ng-submit="addTodo()">
+                <input type="text" required placeholder="新しい要件を入力" class="form-control input-lg" ng-model="newTitle">
+                <span class="input-group-btn">
+                    <button type="submit" class="btn btn-default">追加</button>
+                </span>
+            </form>
+
+            <hr>
+
+            <div class="btn-toolbar">
+                <div class="btn-group">
+                    <button class="btn btn-success">全て完了/未了</button>
+                </div>
+                <div class="btn-group">
+                    <button ng-click="changeFilter()" class="btn btn-default {active: !currentFilter}">全部<span class="badge">{{allCount}}</span></button>
+                    <button ng-click="changeFilter(filter.remining)" class="btn btn-default {active: !currentFilter == filter.remaining}">未了<span class="badge">{{doneCount}}</span></button>
+                    <button ng-click="changeFilter(filter.done)" class="btn btn-default {active: !currentFilter == done}">完了<span class="badge">{{remainingCount}}</span></button>
+                </div>
+                <div class="btn-group">
+                    <button class="btn btn-danger">完了アイテムを全て削除</button>
+                </div>
+            </div>
+
+            <hr>
+
+            <ul class="list-unstyled">
+                <li class="todo-item" ng-repeat="todo in todos | filter:currentFilter" ng-class="{done: todo.done}">
+                    <form class="input-group input-group-lg">
+                        <label class="input-group-addon"><input type="checkbox" /></label>
+                        <p class="form-control input-lg todo-title">{{ todo.title }}</p>
+                        <span class="input-group-btn del-btn">
+                            <button type="reset" class="btn btn-danger">削除</button>
+                        </span>
+                    </form>
+                </li>
+            </ul>
+        </div>
+    </div>
+</body>
+</html>
